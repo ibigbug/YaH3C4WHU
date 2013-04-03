@@ -47,17 +47,28 @@ def get_EAP(code, id, type=0, data=""):
         return pack("!BBHB", code, id, 5+len(data), type)+data
 
 
+def get_MD5_Challenge(id, password, attach_key):
+    s = pack('!B', id) + password + attach_key
+    dig = hashlib.md5(s).digest()
+    return pack('!B', 0x10)  + dig
+
+
 def get_ethernet_header(src, dst, type):
     return dst+src+pack("!H", type)
 
 
 def get_fucking_tail(username):
-    local_ip = '169.254.10.10'
-    local_mask = '255.255.0.0'
-    local_gateway = '169.254.10.1'  # never used
-    local_dns = '8.8.8.8'  # never used
+    local_ip = ip_to_int('169.254.10.10')
+    local_mask = ip_to_int('255.255.0.0')
+    local_gateway = ip_to_int('1.1.1.1')  # never used
+    local_dns = ip_to_int('1.1.1.1')  # never used
     username_md5 = hashlib.md5(username).digest()
     client_ver = '3.5.04.1013fk'
 
-    return pack('!IIIBB', local_ip, local_mask, local_gateway, local_dns,
-                username_md5, client_ver)
+    resp = pack('!B4I', 1, local_ip, local_mask, local_gateway, local_dns) + \
+        username_md5 + client_ver
+    return resp
+
+
+def ip_to_int(ip):
+    return reduce(lambda x, y: x*256 + int(y), ip.split('.'), 0)

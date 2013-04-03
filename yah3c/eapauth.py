@@ -10,6 +10,7 @@ __all__ = ["EAPAuth"]
 import socket
 import os
 import sys
+from struct import unpack
 from subprocess import call
 
 from colorama import Fore, Style
@@ -21,14 +22,6 @@ def display_prompt(color, string):
     prompt = color + Style.BRIGHT + '==> ' + Style.RESET_ALL
     prompt += Style.BRIGHT + string + Style.RESET_ALL
     print prompt
-
-
-def display_packet(packet):
-    # print ethernet_header infomation
-    print 'Ethernet Header Info: '
-    print '\tFrom: ' + repr(packet[0:6])
-    print '\tTo: ' + repr(packet[6:12])
-    print '\tType: ' + repr(packet[12:14])
 
 
 class EAPAuth:
@@ -67,25 +60,24 @@ class EAPAuth:
                                    get_EAP(EAP_RESPONSE,
                                            packet_id,
                                            EAP_TYPE_ID,
-                                           self.version_info +
-                                           self.login_info['username']))
-                         + get_fucking_tail(self.login_info['username']))
+                                           self.login_info['username'])
+                         + get_fucking_tail(self.login_info['username'])))
 
     def send_response_md5(self, packet_id, md5data):
-        md5 = self.login_info['password'][0:16]
-        if len(md5) < 16:
-            md5 = md5 + '\x00' * (16 - len(md5))
-        chap = []
-        for i in xrange(0, 16):
-            chap.append(chr(ord(md5[i]) ^ ord(md5data[i])))
-        resp = chr(len(chap)) + ''.join(chap) + self.login_info['username']
-        eap_packet = self.ethernet_header + get_EAPOL(EAPOL_EAPPACKET,
-                                                      get_EAP(EAP_RESPONSE,
-                                                              packet_id,
-                                                              EAP_TYPE_MD5,
-                                                              resp))
+        username = self.login_info['username']
+        password = self.login_info['password']
+        md5_dig = get_MD5_Challenge(packet_id, password, md5data)
+        eap_packet = self.ethernet_header + get_EAPOL(
+            EAPOL_EAPPACKET,
+            get_EAP(
+                EAP_RESPONSE,
+                packet_id,
+                EAP_TYPE_MD5,
+                md5_dig) +
+        get_fucking_tail(username))
         try:
             self.client.send(eap_packet)
+            print 2
         except socket.error, msg:
             print "Connection error! %s" % msg
             exit(-1)
@@ -99,16 +91,14 @@ class EAPAuth:
             print "Connection error! %s" % msg
             exit(-1)
 
-    def display_login_message(self, msg):
+    def display_login_message(self, byte_array):
         """
             display the messages received form the radius server,
             including the error meaasge after logging failed or
             other meaasge from networking centre
         """
-        try:
-            print msg.decode('gbk')
-        except UnicodeDecodeError:
-            print msg
+        for i in range (len (byte_array)):
+                print "[%02x] %s" % (i, byte_array[i:].decode('gbk', 'ignore'))
 
     def EAP_handler(self, eap_packet):
         vers, type, eapol_len = unpack("!BBH", eap_packet[:4])
@@ -131,11 +121,11 @@ class EAPAuth:
             if (self.has_sent_logoff):
                 display_prompt(Fore.YELLOW, 'Logoff Successfully!')
 
-                #self.display_login_message(eap_packet[10:])
+                self.display_login_message(eap_packet)
             else:
                 display_prompt(Fore.YELLOW, 'Got EAP Failure')
 
-                #self.display_login_message(eap_packet[10:])
+                self.display_login_message(eap_packet)
             exit(-1)
         elif code == EAP_RESPONSE:
             display_prompt(Fore.YELLOW, 'Got Unknown EAP Response')
@@ -156,10 +146,11 @@ class EAPAuth:
                 display_prompt(Fore.YELLOW, 'Got EAP Request for MD5-Challenge')
                 self.send_response_md5(id, md5data)
                 display_prompt(Fore.GREEN, 'Sending EAP response with password')
+                print 3
             else:
                 display_prompt(Fore.YELLOW, 'Got unknown Request type (%i)' % reqtype)
         elif code == 10 and id == 5:
-            self.display_login_message(eap_packet[12:])
+            self.display_login_message(eap_packet)
         else:
             display_prompt(Fore.YELLOW, 'Got unknown EAP code (%i)' % code)
 
@@ -170,6 +161,7 @@ class EAPAuth:
                 eap_packet = self.client.recv(1600)
 
                 # strip the ethernet_header and handle
+                print 1
                 self.EAP_handler(eap_packet[14:])
         except KeyboardInterrupt:
             print Fore.RED + Style.BRIGHT + 'Interrupted by user' + Style.RESET_ALL
