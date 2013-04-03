@@ -74,7 +74,7 @@ class EAPAuth:
                 packet_id,
                 EAP_TYPE_MD5,
                 md5_dig) +
-        get_fucking_tail(username))
+            get_fucking_tail(username))
         try:
             self.client.send(eap_packet)
             print 2
@@ -97,7 +97,7 @@ class EAPAuth:
             including the error meaasge after logging failed or
             other meaasge from networking centre
         """
-        for i in range (len (byte_array)):
+        for i in range(len(byte_array)):
                 print "[%02x] %s" % (i, byte_array[i:].decode('gbk', 'ignore'))
 
     def EAP_handler(self, eap_packet):
@@ -109,6 +109,7 @@ class EAPAuth:
         code, id, eap_len = unpack("!BBH", eap_packet[4:8])
         if code == EAP_SUCCESS:
             display_prompt(Fore.YELLOW, 'Got EAP Success')
+            self.display_login_message(eap_packet)
 
             if self.login_info['dhcp_command']:
                 display_prompt(Fore.YELLOW, 'Obtaining IP Address:')

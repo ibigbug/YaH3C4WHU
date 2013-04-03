@@ -6,7 +6,7 @@
 
 __version__ = '0.5'
 
-import os, sys
+import os
 import ConfigParser
 import getpass
 import argparse
@@ -17,9 +17,11 @@ import usermgr
 
 
 def parse_arguments():
-    parser = argparse.ArgumentParser(description='Yet Another H3C Authentication Client', prog='yah3c')
+    parser = argparse.ArgumentParser(
+        description='Yet Another H3C Authentication Client',
+        prog='yah3c')
     parser.add_argument('-u', '--username',
-            help='Login in with this username')
+                        help='Login in with this username')
     # parser.add_argument('-p', '--password',
     #         help='Password')
     # parser.add_argument('-i', '--interface', default='eth0',
@@ -29,9 +31,12 @@ def parse_arguments():
     # parser.add_argument('-D', '--dhcp',
     #         help='DHCP cmd used to obtain ip after authentication.')
     parser.add_argument('-debug', action='store_true',
-            help='Enable debugging mode')
+                        help='Enable debugging mode')
+    parser.add_argument('-l', action='logoff',
+                        help='Log Off')
     args = parser.parse_args()
     return args
+
 
 def prompt_user_info():
     username = raw_input('Input username: ')
@@ -64,30 +69,32 @@ def prompt_user_info():
         'dhcp_command': dhcp_cmd
     }
 
+
 def enter_interactive_usermanager():
     um = usermgr.UserMgr()
 
     if um.get_user_number() == 0:
         choice = raw_input('No user conf file found, creat a new one?\n<Y/N>: ')
-        if choice == 'y' or choice == 'Y': 
+        if choice == 'y' or choice == 'Y':
             login_info = prompt_user_info()
             um.add_user(login_info)
-        else: 
+        else:
             exit(-1)
-    
+
     # user has been created or already have users
     users_info = um.get_all_users_info()
 
     print '0 - add a new user'
     for i, user_info in enumerate(users_info):
-        print '%d - %s(%s)' %(i + 1, user_info['username'], user_info['ethernet_interface'])
+        print '%d - %s(%s)' % (i + 1, user_info['username'], user_info['ethernet_interface'])
 
     while True:
         try:
             choice = int(raw_input('Your choice: '))
         except ValueError:
             print 'Please input a valid number!'
-        else: break;
+        else:
+            break
     if choice == 0:
         try:
             user_info = prompt_user_info()
@@ -95,12 +102,19 @@ def enter_interactive_usermanager():
         except ConfigParser.DuplicateSectionError:
             print 'User already exist!'
             exit(-1)
-    else: 
+    else:
         return users_info[choice - 1]
+
 
 def start_yah3c(login_info):
     yah3c = eapauth.EAPAuth(login_info)
     yah3c.serve_forever()
+
+
+def logoff():
+    yah3c = eapauth.EAPAuth()
+    yah3c.send_logoff()
+
 
 def main():
     args = parse_arguments()
@@ -114,8 +128,8 @@ def main():
     # check if debugging mode enabled
     if args['debug'] is True:
         logging.basicConfig(level=logging.DEBUG,
-                format='%(asctime)s %(levelname)s: %(message)s',
-                datefmt='%Y-%m-%d %H:%M:%S')
+                            format='%(asctime)s %(levelname)s: %(message)s',
+                            datefmt='%Y-%m-%d %H:%M:%S')
         logging.debug('Debugging mode enabled.')
         logging.debug(args)
 
@@ -125,6 +139,10 @@ def main():
         logging.debug(login_info)
         start_yah3c(login_info)
 
+    # if -l, then log off
+
+    if args['logoff'] is True:
+        logoff()
     # if there is username, then get it's info
     um = usermgr.UserMgr()
     login_info = um.get_user_info(args['username'])
