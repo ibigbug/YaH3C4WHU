@@ -1,7 +1,7 @@
 """ EAP authentication handler
 
 This module sents EAPOL begin/logoff packet
-and parses received EAP packet 
+and parses received EAP packet
 
 """
 
@@ -29,7 +29,7 @@ def display_packet(packet):
 
 class EAPAuth:
     def __init__(self, login_info):
-        # bind the h3c client to the EAP protocal 
+        # bind the h3c client to the EAP protocal
         self.client = socket.socket(socket.AF_PACKET, socket.SOCK_RAW, socket.htons(ETHERTYPE_PAE))
         self.client.bind((login_info['ethernet_interface'], ETHERTYPE_PAE))
         # get local ethernet card address
@@ -55,7 +55,7 @@ class EAPAuth:
         display_prompt(Fore.GREEN, 'Sending EAPOL logoff')
 
     def send_response_id(self, packet_id):
-        self.client.send(self.ethernet_header + 
+        self.client.send(self.ethernet_header +
                 get_EAPOL(EAPOL_EAPPACKET,
                     get_EAP(EAP_RESPONSE,
                         packet_id,
@@ -89,7 +89,7 @@ class EAPAuth:
     def display_login_message(self, msg):
         """
             display the messages received form the radius server,
-            including the error meaasge after logging failed or 
+            including the error meaasge after logging failed or
             other meaasge from networking centre
         """
         try:
@@ -106,14 +106,14 @@ class EAPAuth:
         code, id, eap_len = unpack("!BBH", eap_packet[4:8])
         if code == EAP_SUCCESS:
             display_prompt(Fore.YELLOW, 'Got EAP Success')
-            
+
             if self.login_info['dhcp_command']:
                 display_prompt(Fore.YELLOW, 'Obtaining IP Address:')
                 call([self.login_info['dhcp_command'], self.login_info['ethernet_interface']])
 
             if self.login_info['daemon'] == 'True':
                 daemonize('/dev/null','/tmp/daemon.log','/tmp/daemon.log')
-        
+
         elif code == EAP_FAILURE:
             if (self.has_sent_logoff):
                 display_prompt(Fore.YELLOW, 'Logoff Successfully!')
@@ -175,30 +175,30 @@ def daemonize (stdin='/dev/null', stdout='/dev/null', stderr='/dev/null'):
     output may not appear in the order that you expect. '''
 
     # Do first fork.
-    try: 
-        pid = os.fork() 
+    try:
+        pid = os.fork()
         if pid > 0:
             sys.exit(0)   # Exit first parent.
-    except OSError, e: 
+    except OSError, e:
         sys.stderr.write ("fork #1 failed: (%d) %s\n" % (e.errno, e.strerror) )
         sys.exit(1)
 
     # Decouple from parent environment.
-    os.chdir("/") 
-    os.umask(0) 
-    os.setsid() 
+    os.chdir("/")
+    os.umask(0)
+    os.setsid()
 
     # Do second fork.
-    try: 
-        pid = os.fork() 
+    try:
+        pid = os.fork()
         if pid > 0:
             sys.exit(0)   # Exit second parent.
-    except OSError, e: 
+    except OSError, e:
         sys.stderr.write ("fork #2 failed: (%d) %s\n" % (e.errno, e.strerror) )
         sys.exit(1)
 
     # Now I am a daemon!
-    
+
     # Redirect standard file descriptors.
     si = open(stdin, 'r')
     so = open(stdout, 'a+')

@@ -35,7 +35,7 @@ class UserMgr:
         self.config.write(fp)
         fp.close()
         self.config.read(self.users_cfg_path)
-       
+
     def get_user_number(self):
         return len(self.config.sections())
 
@@ -52,7 +52,7 @@ class UserMgr:
         user_info = dict(self.config.items(username))
         user_info['username'] = username
         return user_info
-    
+
     def add_user(self, user_info):
         self.config.add_section(user_info['username'])
         self.update_user_info(user_info)
