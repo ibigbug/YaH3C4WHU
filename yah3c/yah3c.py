@@ -32,8 +32,7 @@ def parse_arguments():
     #         help='DHCP cmd used to obtain ip after authentication.')
     parser.add_argument('-debug', action='store_true',
                         help='Enable debugging mode')
-    parser.add_argument('-l', action='logoff',
-                        help='Log Off')
+    parser.add_argument('-l', '--logoff', action='store_true', help='Log Off')
     args = parser.parse_args()
     return args
 
@@ -111,14 +110,15 @@ def start_yah3c(login_info):
     yah3c.serve_forever()
 
 
-def logoff():
-    yah3c = eapauth.EAPAuth()
+def logoff(login_info):
+    yah3c = eapauth.EAPAuth(login_info)
     yah3c.send_logoff()
 
 
 def main():
     args = parse_arguments()
     args = vars(args)
+    print args
 
     # check for root privilege
     if not (os.getuid() == 0):
@@ -137,12 +137,12 @@ def main():
     if args['username'] is None:
         login_info = enter_interactive_usermanager()
         logging.debug(login_info)
+        # if -l, then log off
+        if args['logoff'] is True:
+            logoff(login_info)
+            exit(-1)
         start_yah3c(login_info)
 
-    # if -l, then log off
-
-    if args['logoff'] is True:
-        logoff()
     # if there is username, then get it's info
     um = usermgr.UserMgr()
     login_info = um.get_user_info(args['username'])
