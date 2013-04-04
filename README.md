@@ -1,7 +1,10 @@
 YaH3C
 =====
 
-YaH3C 是用于校园网认证的客户端，支持中山大学东校区.
+<ins>YaH3C 是用于校园网认证的客户端，支持中山大学东校区.</ins>
+YaH3C4WHU 是基于YaH3C开发的神州数码认证客户端，目前支持武汉大学，其他学校未测试。
+
+
 
 为什么不用iNode
 ---------------
@@ -36,7 +39,7 @@ sudo pacman -S git
 然后，从项目中clone下来并安装
 
 ```bash
-git clone git://github.com/humiaozuzu/YaH3C.git
+git clone git://github.com/ibigbug/YaH3C4WHU.git
 cd YaH3C
 sudo python setup.py install
 ```
@@ -53,7 +56,7 @@ sudo python setup.py install
 程序运行时必须要有root权限：
 
 ```bash
-sudo yah3c
+sudo yah3c4whu
 ```
 
 根据程序的提示输入账号密码就可以开始认证了，有些选项如果看不懂请直接按`Enter`。
@@ -64,11 +67,11 @@ sudo yah3c
 
 如果没有指定dhcp的命令，你可以在认证成功后使用自己喜欢的网络管理工具获取IP，如NetworkManager或Wicd。
 
-YaH3C支持基本的命令行参数，执行`yah3c -h`可以看到支持的命令行参数
+YaH3C支持基本的命令行参数，执行`yah3c4whu -h`可以看到支持的命令行参数
 
 ``` bash
-$ yah3c -h       
-usage: yah3c [-h] [-u USERNAME] [-debug]
+$ yah3c4whu -h       
+usage: yah3c4whu [-h] [-u USERNAME] [-debug]
 
 Yet Another H3C Authentication Client
 
@@ -79,7 +82,7 @@ optional arguments:
   -debug                Enable debugging mode
 ```
 
-如执行`sudo yah3c -u Maple`可以自动认证`Maple`这个帐号
+如执行`sudo yah3c4whu -u Maple`可以自动认证`Maple`这个帐号
 
 配置文件格式
 ---------
@@ -98,7 +101,7 @@ ScreenShots
 
 认证成功:
 
-![success](https://raw.github.com/humiaozuzu/YaH3C/master/screenshots/success.png)
+![success](https://raw.github.com/ibigbug/YaH3C4WHU/yah3c4whu/screenshots/success-whu.png)
 
 认证失败:
 
@@ -107,12 +110,11 @@ ScreenShots
 
 Todo
 ----
-* 添加BSD BPF 支持，这样在OS X也可以使用了
-* 完善收集调试信息的功能，方便用户提交认证信息
-* 完善对H3C协议的支持
+* 从返回的byte_array中提取gbk编码的消息。可参考[深入了解校园网802.1x认证的EAP协议(2)——神州数码认证细节](http://apt-blog.net/eap_explaination_2)
 
 Thanks
 ------
+* [PT桑](http://apt-blog.net/) 在博客中对于8021x协议以及武大私有认证方式的详细叙述
 * [qiao](https://github.com/qiao) - Write python installation script for YaH3C
 * [houqp](https://github.com/houqp) - Refered to houqp's [pyh3c](https://github.com/houqp/pyh3c)
 * [tigersoldier](https://github.com/tigersoldier) - Write EAP-Md5 for YaH3C
