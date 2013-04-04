@@ -1,3 +1,6 @@
+##!/usr/bin/env python
+# -*- coding:utf8 -*-
+
 """ EAP authentication handler
 
 This module sents EAPOL begin/logoff packet
@@ -77,7 +80,6 @@ class EAPAuth:
             get_fucking_tail(username))
         try:
             self.client.send(eap_packet)
-            print 2
         except socket.error, msg:
             print "Connection error! %s" % msg
             exit(-1)
@@ -96,9 +98,15 @@ class EAPAuth:
             display the messages received form the radius server,
             including the error meaasge after logging failed or
             other meaasge from networking centre
+        for i in range (len (byte_array)):
+            print "[%02x] %s" % (i, byte_array[i:].decode('gbk', 'ignore'))
         """
-        for i in range(len(byte_array)):
-                print "[%02x] %s" % (i, byte_array[i:].decode('gbk', 'ignore'))
+        display_prompt(Fore.BLUE, u'服务器消息:')
+        try:
+            l = unpack('!B', byte_array[0x113])[0]
+            print byte_array[0x114:0x114 + l-2].decode('gbk', 'ignore')
+        except:
+            pass
 
     def EAP_handler(self, eap_packet):
         vers, type, eapol_len = unpack("!BBH", eap_packet[:4])
@@ -147,7 +155,6 @@ class EAPAuth:
                 display_prompt(Fore.YELLOW, 'Got EAP Request for MD5-Challenge')
                 self.send_response_md5(id, md5data)
                 display_prompt(Fore.GREEN, 'Sending EAP response with password')
-                print 3
             else:
                 display_prompt(Fore.YELLOW, 'Got unknown Request type (%i)' % reqtype)
         elif code == 10 and id == 5:
@@ -162,7 +169,6 @@ class EAPAuth:
                 eap_packet = self.client.recv(1600)
 
                 # strip the ethernet_header and handle
-                print 1
                 self.EAP_handler(eap_packet[14:])
         except KeyboardInterrupt:
             print Fore.RED + Style.BRIGHT + 'Interrupted by user' + Style.RESET_ALL

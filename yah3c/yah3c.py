@@ -118,7 +118,6 @@ def logoff(login_info):
 def main():
     args = parse_arguments()
     args = vars(args)
-    print args
 
     # check for root privilege
     if not (os.getuid() == 0):
