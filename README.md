@@ -1,7 +1,7 @@
 YaH3C
 =====
 
-<ins>YaH3C 是用于校园网认证的客户端，支持中山大学东校区.</ins>
+<del>YaH3C 是用于校园网认证的客户端，支持中山大学东校区.</del>
 YaH3C4WHU 是基于YaH3C开发的神州数码认证客户端，目前支持武汉大学，其他学校未测试。
 
 
@@ -101,7 +101,7 @@ ScreenShots
 
 认证成功:
 
-![success](https://raw.github.com/ibigbug/YaH3C4WHU/yah3c4whu/screenshots/success-whu.png)
+![success](https://raw.github.com/ibigbug/YaH3C4WHU/yah3c-whu/screenshots/success-whu.png)
 
 认证失败:
 
