@@ -13,5 +13,5 @@ setup(name='yah3c',
       download_url='https://github.com/humiaozuzu/YaH3C',
       license='MIT',
       packages=['yah3c', 'yah3c/colorama'],
-      scripts=['scripts/yah3c'],
+      scripts=['scripts/yah3c4whu'],
       )
