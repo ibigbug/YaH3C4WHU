@@ -4,7 +4,7 @@
 from distutils.core import setup
 import yah3c.yah3c
 
-setup(name='yah3c',
+setup(name='yah3c4whu',
       version=yah3c.yah3c.__version__,
       description='A program for h3c authentication in SYSU east campus.',
       author='maple',
